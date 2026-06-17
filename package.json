@@ -1,6 +1,6 @@
 {
 	"name": "@magic-spells/pyramid",
-	"version": "0.1.0",
+	"version": "0.1.1",
 	"description": "MCP server + CLI for the Pyramid project-management API.",
 	"license": "MIT",
 	"homepage": "https://github.com/magic-spells/pyramid#readme",
