@@ -7,39 +7,39 @@
 import type { McpErrorCode } from './types.js';
 
 export class McpError extends Error {
-  readonly code: McpErrorCode;
-  readonly hint?: string;
-  readonly candidates?: string[];
+	readonly code: McpErrorCode;
+	readonly hint?: string;
+	readonly candidates?: string[];
 
-  constructor(
-    code: McpErrorCode,
-    message: string,
-    opts?: { hint?: string; candidates?: string[] },
-  ) {
-    super(message);
-    this.name = 'McpError';
-    this.code = code;
-    if (opts?.hint !== undefined) this.hint = opts.hint;
-    if (opts?.candidates !== undefined) this.candidates = opts.candidates;
-    // Restore prototype chain for instanceof across transpilation targets.
-    Object.setPrototypeOf(this, McpError.prototype);
-  }
+	constructor(
+		code: McpErrorCode,
+		message: string,
+		opts?: { hint?: string; candidates?: string[] }
+	) {
+		super(message);
+		this.name = 'McpError';
+		this.code = code;
+		if (opts?.hint !== undefined) this.hint = opts.hint;
+		if (opts?.candidates !== undefined) this.candidates = opts.candidates;
+		// Restore prototype chain for instanceof across transpilation targets.
+		Object.setPrototypeOf(this, McpError.prototype);
+	}
 
-  /** Plain serializable shape — what goes into MCP tool result text + CLI --json. */
-  toJSON(): { code: McpErrorCode; message: string; hint?: string; candidates?: string[] } {
-    const out: { code: McpErrorCode; message: string; hint?: string; candidates?: string[] } = {
-      code: this.code,
-      message: this.message,
-    };
-    if (this.hint !== undefined) out.hint = this.hint;
-    if (this.candidates !== undefined) out.candidates = this.candidates;
-    return out;
-  }
+	/** Plain serializable shape — what goes into MCP tool result text + CLI --json. */
+	toJSON(): { code: McpErrorCode; message: string; hint?: string; candidates?: string[] } {
+		const out: { code: McpErrorCode; message: string; hint?: string; candidates?: string[] } = {
+			code: this.code,
+			message: this.message,
+		};
+		if (this.hint !== undefined) out.hint = this.hint;
+		if (this.candidates !== undefined) out.candidates = this.candidates;
+		return out;
+	}
 }
 
 /** True when `e` is an McpError (instanceof, tolerant of realm differences). */
 export function isMcpError(e: unknown): e is McpError {
-  return e instanceof McpError;
+	return e instanceof McpError;
 }
 
 /**
@@ -49,37 +49,36 @@ export function isMcpError(e: unknown): e is McpError {
  * transport — they return this instead so the model sees a typed, parseable error.
  */
 export function toToolError(e: McpError): {
-  content: { type: 'text'; text: string }[];
-  isError: true;
+	content: { type: 'text'; text: string }[];
+	isError: true;
 } {
-  return {
-    content: [{ type: 'text', text: JSON.stringify(e.toJSON()) }],
-    isError: true,
-  };
+	return {
+		content: [{ type: 'text', text: JSON.stringify(e.toJSON()) }],
+		isError: true,
+	};
 }
 
-const REGENERATE_KEY_HINT =
-  'Regenerate your key in Pyramid → Settings → API Keys.';
+const REGENERATE_KEY_HINT = 'Regenerate your key in Pyramid → Settings → API Keys.';
 
 // ============ HTTP-envelope -> McpError ============
 
 /** The Pyramid error envelope: `{ "error": { code, message, details } }`. */
 interface PyramidEnvelope {
-  error?: { code?: string; message?: string; details?: unknown };
+	error?: { code?: string; message?: string; details?: unknown };
 }
 
 /** Defensively read `{ error: { code, message } }` out of a parsed body. */
 function readEnvelope(body: unknown): { code?: string; message?: string } {
-  if (body && typeof body === 'object' && 'error' in body) {
-    const err = (body as PyramidEnvelope).error;
-    if (err && typeof err === 'object') {
-      return {
-        code: typeof err.code === 'string' ? err.code : undefined,
-        message: typeof err.message === 'string' ? err.message : undefined,
-      };
-    }
-  }
-  return {};
+	if (body && typeof body === 'object' && 'error' in body) {
+		const err = (body as PyramidEnvelope).error;
+		if (err && typeof err === 'object') {
+			return {
+				code: typeof err.code === 'string' ? err.code : undefined,
+				message: typeof err.message === 'string' ? err.message : undefined,
+			};
+		}
+	}
+	return {};
 }
 
 /**
@@ -88,15 +87,15 @@ function readEnvelope(body: unknown): { code?: string; message?: string } {
  * fall back to a substring sniff, then to `unknown` when nothing is conclusive.
  */
 function notFoundCode(env: { code?: string; message?: string }): McpErrorCode {
-  const hay = `${env.code ?? ''} ${env.message ?? ''}`.toLowerCase();
-  if (hay.includes('project')) return 'project_not_found';
-  if (hay.includes('task')) return 'task_not_found';
-  if (hay.includes('status')) return 'status_not_found';
-  if (hay.includes('stage')) return 'stage_not_found';
-  if (hay.includes('label')) return 'label_not_found';
-  if (hay.includes('user')) return 'user_not_found';
-  if (hay.includes('field')) return 'field_not_found';
-  return 'unknown';
+	const hay = `${env.code ?? ''} ${env.message ?? ''}`.toLowerCase();
+	if (hay.includes('project')) return 'project_not_found';
+	if (hay.includes('task')) return 'task_not_found';
+	if (hay.includes('status')) return 'status_not_found';
+	if (hay.includes('stage')) return 'stage_not_found';
+	if (hay.includes('label')) return 'label_not_found';
+	if (hay.includes('user')) return 'user_not_found';
+	if (hay.includes('field')) return 'field_not_found';
+	return 'unknown';
 }
 
 /**
@@ -110,46 +109,46 @@ function notFoundCode(env: { code?: string; message?: string }): McpErrorCode {
  *   5xx / anything else -> unknown
  */
 export function mapHttpError(status: number, body: unknown): McpError {
-  const env = readEnvelope(body);
-  const message = env.message ?? `Pyramid request failed (HTTP ${status}).`;
+	const env = readEnvelope(body);
+	const message = env.message ?? `Pyramid request failed (HTTP ${status}).`;
 
-  if (status === 401) {
-    const expired =
-      (env.code ?? '').toLowerCase().includes('expired') ||
-      (env.message ?? '').toLowerCase().includes('expired');
-    return new McpError(expired ? 'auth_expired' : 'auth_invalid', message, {
-      hint: REGENERATE_KEY_HINT,
-    });
-  }
+	if (status === 401) {
+		const expired =
+			(env.code ?? '').toLowerCase().includes('expired') ||
+			(env.message ?? '').toLowerCase().includes('expired');
+		return new McpError(expired ? 'auth_expired' : 'auth_invalid', message, {
+			hint: REGENERATE_KEY_HINT,
+		});
+	}
 
-  if (status === 403) {
-    return new McpError('permission_denied', message);
-  }
+	if (status === 403) {
+		return new McpError('permission_denied', message);
+	}
 
-  if (status === 404) {
-    return new McpError(notFoundCode(env), message);
-  }
+	if (status === 404) {
+		return new McpError(notFoundCode(env), message);
+	}
 
-  if (status === 400 || status === 422) {
-    return new McpError('validation_failed', message);
-  }
+	if (status === 400 || status === 422) {
+		return new McpError('validation_failed', message);
+	}
 
-  if (status === 409) {
-    // pyramid-server returns 409 `conflict` for both slug/prefix collisions and a
-    // missing/stale If-Match precondition (DOC-CONCURRENCY). The read-first retry in
-    // the client handles the racy case; a surfaced conflict means reread + retry.
-    return new McpError('conflict', message, {
-      hint: 'The resource changed since you last read it — reread it and try again.',
-    });
-  }
+	if (status === 409) {
+		// pyramid-server returns 409 `conflict` for both slug/prefix collisions and a
+		// missing/stale If-Match precondition (DOC-CONCURRENCY). The read-first retry in
+		// the client handles the racy case; a surfaced conflict means reread + retry.
+		return new McpError('conflict', message, {
+			hint: 'The resource changed since you last read it — reread it and try again.',
+		});
+	}
 
-  if (status === 429) {
-    // The backend has no rate limiting today; kept defensively for proxies/CDNs.
-    return new McpError('rate_limited', message, { hint: 'Slow down and retry.' });
-  }
+	if (status === 429) {
+		// The backend has no rate limiting today; kept defensively for proxies/CDNs.
+		return new McpError('rate_limited', message, { hint: 'Slow down and retry.' });
+	}
 
-  // 5xx and any other non-2xx fall through to unknown.
-  return new McpError('unknown', message);
+	// 5xx and any other non-2xx fall through to unknown.
+	return new McpError('unknown', message);
 }
 
 /**
@@ -158,38 +157,38 @@ export function mapHttpError(status: number, body: unknown): McpError {
  * with a final `unknown` fallback for the truly opaque.
  */
 export function toMcpError(e: unknown): McpError {
-  if (e instanceof McpError) return e;
+	if (e instanceof McpError) return e;
 
-  if (e instanceof Error) {
-    if (isNetworkError(e)) {
-      return new McpError('network', e.message, {
-        hint: 'Check PYRAMID_BASE_URL and your network connection.',
-      });
-    }
-    return new McpError('unknown', e.message);
-  }
+	if (e instanceof Error) {
+		if (isNetworkError(e)) {
+			return new McpError('network', e.message, {
+				hint: 'Check PYRAMID_BASE_URL and your network connection.',
+			});
+		}
+		return new McpError('unknown', e.message);
+	}
 
-  return new McpError('unknown', typeof e === 'string' ? e : 'Unknown error.');
+	return new McpError('unknown', typeof e === 'string' ? e : 'Unknown error.');
 }
 
 /** Heuristic: does this Error look like an undici/Node network failure? */
 function isNetworkError(e: Error): boolean {
-  const code = (e as NodeJS.ErrnoException).code ?? '';
-  const name = e.name ?? '';
-  const msg = e.message ?? '';
-  if (
-    code === 'ECONNREFUSED' ||
-    code === 'ENOTFOUND' ||
-    code === 'ECONNRESET' ||
-    code === 'ETIMEDOUT' ||
-    code === 'EAI_AGAIN' ||
-    code === 'UND_ERR_CONNECT_TIMEOUT' ||
-    code === 'UND_ERR_SOCKET' ||
-    code === 'UND_ERR_HEADERS_TIMEOUT'
-  ) {
-    return true;
-  }
-  if (name === 'AbortError' || name === 'TimeoutError') return true;
-  // undici surfaces low-level failures as a generic TypeError: "fetch failed".
-  return /fetch failed|network|socket|connect/i.test(msg);
+	const code = (e as NodeJS.ErrnoException).code ?? '';
+	const name = e.name ?? '';
+	const msg = e.message ?? '';
+	if (
+		code === 'ECONNREFUSED' ||
+		code === 'ENOTFOUND' ||
+		code === 'ECONNRESET' ||
+		code === 'ETIMEDOUT' ||
+		code === 'EAI_AGAIN' ||
+		code === 'UND_ERR_CONNECT_TIMEOUT' ||
+		code === 'UND_ERR_SOCKET' ||
+		code === 'UND_ERR_HEADERS_TIMEOUT'
+	) {
+		return true;
+	}
+	if (name === 'AbortError' || name === 'TimeoutError') return true;
+	// undici surfaces low-level failures as a generic TypeError: "fetch failed".
+	return /fetch failed|network|socket|connect/i.test(msg);
 }

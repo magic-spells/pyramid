@@ -20,11 +20,11 @@ import type { Operation, OpContext } from '../operations/index.js';
 
 /** Resolve an operation by its MCP tool name (snake_case, or meta.mcpTool). */
 function findOp(name: string): Operation | undefined {
-  return operations.find((op) => {
-    const meta = (op as { meta?: { mcpTool?: string } }).meta;
-    const toolName = meta?.mcpTool ?? op.name.replace(/\./g, '_');
-    return toolName === name || op.name === name;
-  });
+	return operations.find((op) => {
+		const meta = (op as { meta?: { mcpTool?: string } }).meta;
+		const toolName = meta?.mcpTool ?? op.name.replace(/\./g, '_');
+		return toolName === name || op.name === name;
+	});
 }
 
 /**
@@ -32,97 +32,88 @@ function findOp(name: string): Operation | undefined {
  * `{ error: { code, message, hint?, candidates? } }` envelope the tools use, so a
  * resource read never throws raw across the wire.
  */
-async function renderOp(
-  op: Operation,
-  ctx: OpContext,
-): Promise<string> {
-  try {
-    const input = op.input.parse({});
-    const result = await op.run(input, ctx);
-    return JSON.stringify(result, null, 2);
-  } catch (err) {
-    return JSON.stringify({ error: toMcpError(err).toJSON() }, null, 2);
-  }
+async function renderOp(op: Operation, ctx: OpContext): Promise<string> {
+	try {
+		const input = op.input.parse({});
+		const result = await op.run(input, ctx);
+		return JSON.stringify(result, null, 2);
+	} catch (err) {
+		return JSON.stringify({ error: toMcpError(err).toJSON() }, null, 2);
+	}
 }
 
 /** Register `pyramid://me` and `pyramid://projects` as read-only resources. */
 export function registerResources(server: McpServer, ctx: OpContext): void {
-  server.registerResource(
-    'me',
-    'pyramid://me',
-    {
-      title: 'Pyramid identity',
-      description:
-        'The authenticated user, their workspace, and accessible projects (whoami).',
-      mimeType: 'application/json',
-    },
-    async (uri: URL) => {
-      const op = findOp('whoami');
-      const text = op
-        ? await renderOp(op, ctx)
-        : JSON.stringify({ user: await ctx.client.getMe() }, null, 2);
-      return {
-        contents: [
-          { uri: uri.href, mimeType: 'application/json', text },
-        ],
-      };
-    },
-  );
+	server.registerResource(
+		'me',
+		'pyramid://me',
+		{
+			title: 'Pyramid identity',
+			description: 'The authenticated user, their workspace, and accessible projects (whoami).',
+			mimeType: 'application/json',
+		},
+		async (uri: URL) => {
+			const op = findOp('whoami');
+			const text = op
+				? await renderOp(op, ctx)
+				: JSON.stringify({ user: await ctx.client.getMe() }, null, 2);
+			return {
+				contents: [{ uri: uri.href, mimeType: 'application/json', text }],
+			};
+		}
+	);
 
-  server.registerResource(
-    'projects',
-    'pyramid://projects',
-    {
-      title: 'Pyramid projects',
-      description: 'The projects accessible to the authenticated user.',
-      mimeType: 'application/json',
-    },
-    async (uri: URL) => {
-      const op = findOp('list_projects');
-      const text = op
-        ? await renderOp(op, ctx)
-        : JSON.stringify(await ctx.client.listProjects(), null, 2);
-      return {
-        contents: [
-          { uri: uri.href, mimeType: 'application/json', text },
-        ],
-      };
-    },
-  );
+	server.registerResource(
+		'projects',
+		'pyramid://projects',
+		{
+			title: 'Pyramid projects',
+			description: 'The projects accessible to the authenticated user.',
+			mimeType: 'application/json',
+		},
+		async (uri: URL) => {
+			const op = findOp('list_projects');
+			const text = op
+				? await renderOp(op, ctx)
+				: JSON.stringify(await ctx.client.listProjects(), null, 2);
+			return {
+				contents: [{ uri: uri.href, mimeType: 'application/json', text }],
+			};
+		}
+	);
 
-  // pyramid://projects/{slug}/workflow -> the project's assembled workflow (stages,
-  // statuses, labels, members, field templates) the model loads to resolve names.
-  server.registerResource(
-    'project-workflow',
-    new ResourceTemplate('pyramid://projects/{slug}/workflow', { list: undefined }),
-    {
-      title: 'Project workflow',
-      description:
-        "A project's stages, statuses, labels, members, and field templates, by slug.",
-      mimeType: 'application/json',
-    },
-    async (uri: URL, variables: Record<string, string | string[]>) => {
-      const raw = variables.slug;
-      const slug = Array.isArray(raw) ? raw[0] : raw;
-      const op = findOp('get_project_workflow');
-      let text: string;
-      if (op !== undefined && slug) {
-        try {
-          const result = await op.run(op.input.parse({ project: slug }), ctx);
-          text = JSON.stringify(result, null, 2);
-        } catch (err) {
-          text = JSON.stringify({ error: toMcpError(err).toJSON() }, null, 2);
-        }
-      } else {
-        text = JSON.stringify(
-          { error: { code: 'validation_failed', message: 'missing project slug' } },
-          null,
-          2,
-        );
-      }
-      return {
-        contents: [{ uri: uri.href, mimeType: 'application/json', text }],
-      };
-    },
-  );
+	// pyramid://projects/{slug}/workflow -> the project's assembled workflow (stages,
+	// statuses, labels, members, field templates) the model loads to resolve names.
+	server.registerResource(
+		'project-workflow',
+		new ResourceTemplate('pyramid://projects/{slug}/workflow', { list: undefined }),
+		{
+			title: 'Project workflow',
+			description: "A project's stages, statuses, labels, members, and field templates, by slug.",
+			mimeType: 'application/json',
+		},
+		async (uri: URL, variables: Record<string, string | string[]>) => {
+			const raw = variables.slug;
+			const slug = Array.isArray(raw) ? raw[0] : raw;
+			const op = findOp('get_project_workflow');
+			let text: string;
+			if (op !== undefined && slug) {
+				try {
+					const result = await op.run(op.input.parse({ project: slug }), ctx);
+					text = JSON.stringify(result, null, 2);
+				} catch (err) {
+					text = JSON.stringify({ error: toMcpError(err).toJSON() }, null, 2);
+				}
+			} else {
+				text = JSON.stringify(
+					{ error: { code: 'validation_failed', message: 'missing project slug' } },
+					null,
+					2
+				);
+			}
+			return {
+				contents: [{ uri: uri.href, mimeType: 'application/json', text }],
+			};
+		}
+	);
 }

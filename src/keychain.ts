@@ -19,7 +19,7 @@ const isMac = process.platform === 'darwin';
 
 /** chmod-600 fallback file for platforms without `security` (Linux/Windows). */
 function fallbackPath(): string {
-  return join(homedir(), '.config', 'pyramid', 'credentials.json');
+	return join(homedir(), '.config', 'pyramid', 'credentials.json');
 }
 
 /**
@@ -29,25 +29,23 @@ function fallbackPath(): string {
  * config.ts falls through cleanly.
  */
 export function getKey(): string | null {
-  try {
-    if (isMac) {
-      const out = execFileSync(
-        SECURITY,
-        ['find-generic-password', '-s', SERVICE, '-a', ACCOUNT, '-w'],
-        { encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] },
-      );
-      const key = out.trim();
-      return key.length > 0 ? key : null;
-    }
-    const parsed = JSON.parse(readFileSync(fallbackPath(), 'utf8')) as {
-      apiKey?: unknown;
-    };
-    return typeof parsed.apiKey === 'string' && parsed.apiKey.length > 0
-      ? parsed.apiKey
-      : null;
-  } catch {
-    return null;
-  }
+	try {
+		if (isMac) {
+			const out = execFileSync(
+				SECURITY,
+				['find-generic-password', '-s', SERVICE, '-a', ACCOUNT, '-w'],
+				{ encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] }
+			);
+			const key = out.trim();
+			return key.length > 0 ? key : null;
+		}
+		const parsed = JSON.parse(readFileSync(fallbackPath(), 'utf8')) as {
+			apiKey?: unknown;
+		};
+		return typeof parsed.apiKey === 'string' && parsed.apiKey.length > 0 ? parsed.apiKey : null;
+	} catch {
+		return null;
+	}
 }
 
 /**
@@ -55,36 +53,34 @@ export function getKey(): string | null {
  * a genuine write failure so the CLI can report it.
  */
 export function setKey(key: string): void {
-  if (isMac) {
-    // `-U` updates the item if it already exists. The key rides in the argv
-    // array (no shell), briefly visible in the local process list — acceptable
-    // for an interactive, one-time login on the user's own machine.
-    execFileSync(
-      SECURITY,
-      ['add-generic-password', '-U', '-s', SERVICE, '-a', ACCOUNT, '-w', key],
-      { stdio: ['ignore', 'ignore', 'ignore'] },
-    );
-    return;
-  }
-  const path = fallbackPath();
-  mkdirSync(dirname(path), { recursive: true });
-  writeFileSync(path, JSON.stringify({ apiKey: key }, null, 2), { mode: 0o600 });
-  chmodSync(path, 0o600);
+	if (isMac) {
+		// `-U` updates the item if it already exists. The key rides in the argv
+		// array (no shell), briefly visible in the local process list — acceptable
+		// for an interactive, one-time login on the user's own machine.
+		execFileSync(
+			SECURITY,
+			['add-generic-password', '-U', '-s', SERVICE, '-a', ACCOUNT, '-w', key],
+			{ stdio: ['ignore', 'ignore', 'ignore'] }
+		);
+		return;
+	}
+	const path = fallbackPath();
+	mkdirSync(dirname(path), { recursive: true });
+	writeFileSync(path, JSON.stringify({ apiKey: key }, null, 2), { mode: 0o600 });
+	chmodSync(path, 0o600);
 }
 
 /** Remove the stored API key (CLI `logout`). Idempotent. */
 export function deleteKey(): void {
-  try {
-    if (isMac) {
-      execFileSync(
-        SECURITY,
-        ['delete-generic-password', '-s', SERVICE, '-a', ACCOUNT],
-        { stdio: ['ignore', 'ignore', 'ignore'] },
-      );
-      return;
-    }
-    rmSync(fallbackPath(), { force: true });
-  } catch {
-    // Nothing stored / already gone — deletion is idempotent.
-  }
+	try {
+		if (isMac) {
+			execFileSync(SECURITY, ['delete-generic-password', '-s', SERVICE, '-a', ACCOUNT], {
+				stdio: ['ignore', 'ignore', 'ignore'],
+			});
+			return;
+		}
+		rmSync(fallbackPath(), { force: true });
+	} catch {
+		// Nothing stored / already gone — deletion is idempotent.
+	}
 }

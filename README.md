@@ -4,38 +4,34 @@ An MCP server **and** CLI over one shared core for the [Pyramid](https://pyramid
 
 ## Install
 
-No install needed — run it with `npx`:
+`@magic-spells/pyramid` is a single package that runs as both a **CLI** and an **MCP server**. Requires Node ≥ 22.
+
+### As a CLI
+
+Zero-install with `npx`:
 
 ```sh
 npx -y @magic-spells/pyramid --help
 ```
 
-## Onboarding
+…or install it globally for a persistent `pyramid` command:
 
-1. Open Pyramid → **Settings → API Keys** and generate a key. It looks like `pyk_<prefix>_<secret>`.
-2. Give it to the CLI — either export it for the current shell:
+```sh
+npm install -g @magic-spells/pyramid
+pyramid --help
+```
 
-   ```sh
-   export PYRAMID_API_KEY="pyk_..."
-   ```
+### As an MCP server
 
-   …or store it once in your OS keychain so every shell picks it up:
+The same binary speaks MCP over stdio via the `mcp` subcommand — register it with your client.
 
-   ```sh
-   npx -y @magic-spells/pyramid set-key pyk_...   # show-key (masked) / logout to manage it
-   ```
+**Claude Code:**
 
-   The key resolves `PYRAMID_API_KEY` (env) → OS keychain → error, so the env var always wins.
+```sh
+claude mcp add pyramid -- npx -y @magic-spells/pyramid mcp
+```
 
-3. Confirm it works:
-
-   ```sh
-   npx -y @magic-spells/pyramid doctor
-   ```
-
-## MCP client config
-
-Add Pyramid to your MCP client (Claude Desktop, etc.):
+**Claude Desktop / other clients** — add to your MCP config:
 
 ```json
 {
@@ -44,15 +40,85 @@ Add Pyramid to your MCP client (Claude Desktop, etc.):
       "command": "npx",
       "args": ["-y", "@magic-spells/pyramid", "mcp"],
       "env": {
-        "PYRAMID_API_KEY": "pyk_...",
-        "PYRAMID_BASE_URL": "https://api.pyramid.magicspells.io"
+        "PYRAMID_API_KEY": "pyk_..."
       }
     }
   }
 }
 ```
 
-The server speaks MCP over stdio. All diagnostics go to stderr; stdout is the JSON-RPC channel.
+All diagnostics go to stderr; stdout is the JSON-RPC channel.
+
+## Set your API key
+
+First, mint a key: open Pyramid → **Settings → API Keys** and generate one. It looks like `pyk_<prefix>_<secret>`. Then hand it to Pyramid one of two ways.
+
+### With the CLI
+
+Store it once in your OS keychain — the CLI **and** the MCP server both read it automatically, so you only do this once:
+
+```sh
+pyramid set-key pyk_...          # aliases: set-token, set-api-key
+pyramid show-key                 # print it back, masked
+pyramid logout                   # clear it
+```
+
+Prefer an env var for the current shell? `export PYRAMID_API_KEY="pyk_..."` works too and takes priority over the keychain (resolution order: env → keychain → error).
+
+### With the MCP server
+
+Hand the key to your MCP client so the server gets it on launch:
+
+- **Claude Code:** `claude mcp add pyramid -e PYRAMID_API_KEY=pyk_... -- npx -y @magic-spells/pyramid mcp`
+- **Claude Desktop / others:** the `PYRAMID_API_KEY` entry in the `env` block above.
+
+If you already ran `pyramid set-key`, you can leave the key out of the MCP config entirely — the server falls back to the keychain. (If your client can't reach the OS keychain, keep it in the `env` block.)
+
+### Confirm it works
+
+```sh
+npx -y @magic-spells/pyramid doctor
+```
+
+## MCP tools
+
+The server exposes **16 tools**. Every tool takes human **names/keys** as input (`WEB-42`, `"In Review"`, an email) and returns responses **hydrated** with names alongside ids — so the model reasons in names, not UUIDs. The CLI mirrors these 1:1.
+
+**Discovery**
+
+| Tool | What it does |
+|---|---|
+| `whoami` | The authenticated user, their workspace, and the projects they can access. |
+| `list_projects` | Every project accessible to you. |
+| `get_project_workflow` | A project's stages, statuses, labels, members, and custom-field templates — the vocabulary every other call resolves names against. |
+
+**Tasks — read**
+
+| Tool | What it does |
+|---|---|
+| `list_my_tasks` | Tasks you own or report, newest first, across projects. Filter by `role` (owner/reporter/any) and `limit`; paginate with `cursor`. |
+| `list_tasks` | A project's tasks, filtered by `status` / `stage` / `assignee` / `label` / `query`, or `archived` for the archive. Paginated. |
+| `get_task` | One task's full detail by key (`WEB-42`) or UUID; `expand` inlines owner/reporter/labels. |
+| `search_tasks` | Full-text search across the workspace by title/key/content. |
+
+**Tasks — write**
+
+| Tool | What it does |
+|---|---|
+| `create_task` | Create a task — names/keys for stage, status, owner, reporter, labels, priority, due date, estimate, and custom fields. |
+| `create_tasks_bulk` | Create up to 100 tasks at once from a required template, with shared `defaults`. |
+| `update_task` | Edit a task — title/description/priority/dates/estimate, owner/reporter, add/remove labels, custom fields. |
+| `move_task` | Move a task to a target status (which carries its stage), optionally positioned `after_task` / `before_task`. |
+| `archive_task` | Soft-archive or unarchive a task. Reversible. |
+| `delete_task` | Hard-delete a task. **Gated** — requires `PYRAMID_ALLOW_DESTRUCTIVE=1`, else `destructive_action_disabled`. |
+
+**Comments**
+
+| Tool | What it does |
+|---|---|
+| `add_comment` | Add a stage-scoped comment (defaults to the task's current stage); `mentions` accepts names/emails. |
+| `reply_to_comment` | Reply to a root comment — one level deep (replying to a reply is `reply_depth_exceeded`). |
+| `list_comments` | A task's comments, oldest first; defaults to the current stage, `stage: "all"` lists every stage. |
 
 ## CLI quickstart
 
@@ -87,7 +153,7 @@ pyramid comment list <KEY> [--stage G]
 pyramid comment reply <COMMENT_ID> "<TEXT>"
 
 # Local — no network call
-pyramid set-key <pyk_...>          # store the key in your OS keychain
+pyramid set-key <pyk_...>          # store the key in your OS keychain (aliases: set-token, set-api-key)
 pyramid show-key                   # print the stored key, masked
 pyramid logout                     # clear the stored key
 pyramid version                    # print the package version

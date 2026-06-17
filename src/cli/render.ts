@@ -10,37 +10,37 @@
 //   - JSON when `opts.json` OR stdout is not a TTY (auto-JSON for pipes/agents);
 //     a TTY without --json gets a compact human table/lines. `--json` wins.
 
-import type { McpError } from "../errors.js";
-import type { McpErrorCode } from "../types.js";
+import type { McpError } from '../errors.js';
+import type { McpErrorCode } from '../types.js';
 
 /** Global CLI options parsed before the subcommand (DATATYPE-CLI-OPTIONS). */
 export interface CliGlobalOptions {
-  /** --json — force JSON output (else auto-JSON when stdout is not a TTY). */
-  json: boolean;
-  /** --project — default project for verbs that take one. */
-  project?: string;
-  /** --base-url — overrides PYRAMID_BASE_URL. */
-  baseUrl?: string;
-  /** --yes / -y — confirm destructive actions non-interactively. */
-  yes: boolean;
-  /** --no-color — disable ANSI color (also honors NO_COLOR env). */
-  color?: boolean;
-  /** --quiet / -q — suppress non-error diagnostics on stderr. */
-  quiet: boolean;
-  /** --no-cache — bypass the resolver's 60s workflow cache (debug). */
-  noCache?: boolean;
+	/** --json — force JSON output (else auto-JSON when stdout is not a TTY). */
+	json: boolean;
+	/** --project — default project for verbs that take one. */
+	project?: string;
+	/** --base-url — overrides PYRAMID_BASE_URL. */
+	baseUrl?: string;
+	/** --yes / -y — confirm destructive actions non-interactively. */
+	yes: boolean;
+	/** --no-color — disable ANSI color (also honors NO_COLOR env). */
+	color?: boolean;
+	/** --quiet / -q — suppress non-error diagnostics on stderr. */
+	quiet: boolean;
+	/** --no-cache — bypass the resolver's 60s workflow cache (debug). */
+	noCache?: boolean;
 }
 
 // ============ Stream helpers ============
 
 /** Write a line of DATA to stdout. */
 function out(line: string): void {
-  process.stdout.write(line.endsWith("\n") ? line : `${line}\n`);
+	process.stdout.write(line.endsWith('\n') ? line : `${line}\n`);
 }
 
 /** Write a line of DIAGNOSTIC text to stderr. */
 function diag(line: string): void {
-  process.stderr.write(line.endsWith("\n") ? line : `${line}\n`);
+	process.stderr.write(line.endsWith('\n') ? line : `${line}\n`);
 }
 
 /**
@@ -49,7 +49,7 @@ function diag(line: string): void {
  * consumers always get parseable output.
  */
 function jsonMode(opts: CliGlobalOptions): boolean {
-  return opts.json || process.stdout.isTTY !== true;
+	return opts.json || process.stdout.isTTY !== true;
 }
 
 // ============ Success rendering ============
@@ -60,96 +60,94 @@ function jsonMode(opts: CliGlobalOptions): boolean {
  * notes remaining pages on stderr — never silently truncating (DOC-DESIGN-RULES r8).
  */
 export function render(result: unknown, opts: CliGlobalOptions): void {
-  if (jsonMode(opts)) {
-    out(JSON.stringify(result, null, 2));
-    return;
-  }
-  renderHuman(result, opts);
+	if (jsonMode(opts)) {
+		out(JSON.stringify(result, null, 2));
+		return;
+	}
+	renderHuman(result, opts);
 }
 
 /** A paginated envelope: `{ items: T[]; next_cursor: string | null }`. */
 function isPage(
-  v: unknown,
+	v: unknown
 ): v is { items: unknown[]; next_cursor: string | null; has_more?: boolean } {
-  return (
-    typeof v === "object" &&
-    v !== null &&
-    Array.isArray((v as { items?: unknown }).items) &&
-    "next_cursor" in v
-  );
+	return (
+		typeof v === 'object' &&
+		v !== null &&
+		Array.isArray((v as { items?: unknown }).items) &&
+		'next_cursor' in v
+	);
 }
 
 /** Compact human rendering — tables for lists, key/value lines for objects. */
 function renderHuman(result: unknown, opts: CliGlobalOptions): void {
-  // null / undefined → a single explicit line so the user isn't left guessing.
-  if (result === null || result === undefined) {
-    out("(none)");
-    return;
-  }
+	// null / undefined → a single explicit line so the user isn't left guessing.
+	if (result === null || result === undefined) {
+		out('(none)');
+		return;
+	}
 
-  // Paginated list → table of its items + a pagination note on stderr.
-  if (isPage(result)) {
-    renderRows(result.items);
-    if (result.next_cursor && !opts.quiet) {
-      diag(`… more results available (use --all or --cursor ${result.next_cursor}).`);
-    }
-    return;
-  }
+	// Paginated list → table of its items + a pagination note on stderr.
+	if (isPage(result)) {
+		renderRows(result.items);
+		if (result.next_cursor && !opts.quiet) {
+			diag(`… more results available (use --all or --cursor ${result.next_cursor}).`);
+		}
+		return;
+	}
 
-  // Bare array → table.
-  if (Array.isArray(result)) {
-    renderRows(result);
-    return;
-  }
+	// Bare array → table.
+	if (Array.isArray(result)) {
+		renderRows(result);
+		return;
+	}
 
-  // Scalar → print directly.
-  if (typeof result !== "object") {
-    out(String(result));
-    return;
-  }
+	// Scalar → print directly.
+	if (typeof result !== 'object') {
+		out(String(result));
+		return;
+	}
 
-  // Single object → aligned key: value lines (flattening nested name refs).
-  const rec = result as Record<string, unknown>;
-  const keys = Object.keys(rec);
-  if (keys.length === 0) {
-    out("(empty)");
-    return;
-  }
-  const width = Math.max(...keys.map((k) => k.length));
-  for (const k of keys) {
-    out(`${k.padEnd(width)}  ${cell(rec[k])}`);
-  }
+	// Single object → aligned key: value lines (flattening nested name refs).
+	const rec = result as Record<string, unknown>;
+	const keys = Object.keys(rec);
+	if (keys.length === 0) {
+		out('(empty)');
+		return;
+	}
+	const width = Math.max(...keys.map((k) => k.length));
+	for (const k of keys) {
+		out(`${k.padEnd(width)}  ${cell(rec[k])}`);
+	}
 }
 
 /** Render an array of rows as a compact table (objects) or one-per-line (scalars). */
 function renderRows(rows: unknown[]): void {
-  if (rows.length === 0) {
-    out("(no results)");
-    return;
-  }
+	if (rows.length === 0) {
+		out('(no results)');
+		return;
+	}
 
-  // Scalars → one per line.
-  if (rows.every((r) => typeof r !== "object" || r === null)) {
-    for (const r of rows) out(cell(r));
-    return;
-  }
+	// Scalars → one per line.
+	if (rows.every((r) => typeof r !== 'object' || r === null)) {
+		for (const r of rows) out(cell(r));
+		return;
+	}
 
-  // Objects → union of keys as columns, values flattened to one cell each.
-  const objs = rows.map((r) => (r && typeof r === "object" ? (r as Record<string, unknown>) : {}));
-  const cols: string[] = [];
-  for (const o of objs) {
-    for (const k of Object.keys(o)) if (!cols.includes(k)) cols.push(k);
-  }
+	// Objects → union of keys as columns, values flattened to one cell each.
+	const objs = rows.map((r) => (r && typeof r === 'object' ? (r as Record<string, unknown>) : {}));
+	const cols: string[] = [];
+	for (const o of objs) {
+		for (const k of Object.keys(o)) if (!cols.includes(k)) cols.push(k);
+	}
 
-  const matrix = objs.map((o) => cols.map((c) => cell(o[c])));
-  const widths = cols.map((c, i) =>
-    Math.max(c.length, ...matrix.map((row) => row[i]!.length)),
-  );
+	const matrix = objs.map((o) => cols.map((c) => cell(o[c])));
+	const widths = cols.map((c, i) => Math.max(c.length, ...matrix.map((row) => row[i]!.length)));
 
-  out(cols.map((c, i) => c.padEnd(widths[i]!)).join("  "));
-  for (const row of matrix) {
-    out(row.map((v, i) => v.padEnd(widths[i]!)).join("  "));
-  }
+	out(cols.map((c, i) => c.padEnd(widths[i]!)).join('  '));
+	for (const row of matrix) {
+		out(row.map((v, i) => v.padEnd(widths[i]!)).join('  '));
+	}
 }
 
 /**
@@ -158,19 +156,19 @@ function renderRows(rows: unknown[]): void {
  * other objects fall back to compact JSON.
  */
 function cell(v: unknown): string {
-  if (v === null || v === undefined) return "";
-  if (typeof v === "string") return v;
-  if (typeof v === "number" || typeof v === "boolean") return String(v);
-  if (Array.isArray(v)) return v.map(cell).join(", ");
-  if (typeof v === "object") {
-    const o = v as Record<string, unknown>;
-    if (typeof o.name === "string") return o.name;
-    if (typeof o.display_name === "string") return o.display_name;
-    if (typeof o.key === "string") return o.key;
-    if (typeof o.id === "string") return o.id;
-    return JSON.stringify(v);
-  }
-  return String(v);
+	if (v === null || v === undefined) return '';
+	if (typeof v === 'string') return v;
+	if (typeof v === 'number' || typeof v === 'boolean') return String(v);
+	if (Array.isArray(v)) return v.map(cell).join(', ');
+	if (typeof v === 'object') {
+		const o = v as Record<string, unknown>;
+		if (typeof o.name === 'string') return o.name;
+		if (typeof o.display_name === 'string') return o.display_name;
+		if (typeof o.key === 'string') return o.key;
+		if (typeof o.id === 'string') return o.id;
+		return JSON.stringify(v);
+	}
+	return String(v);
 }
 
 // ============ Error rendering + exit codes ============
@@ -180,46 +178,46 @@ function cell(v: unknown): string {
  * The table is by error CLASS so scripts can branch on exit status alone.
  */
 export function exitCodeFor(code: McpErrorCode): number {
-  switch (code) {
-    case "auth_invalid":
-    case "auth_expired":
-      return 3;
-    case "permission_denied":
-      return 4;
-    case "project_not_found":
-    case "task_not_found":
-    case "status_not_found":
-    case "stage_not_found":
-    case "user_not_found":
-    case "label_not_found":
-    case "field_not_found":
-      return 5;
-    case "ambiguous_project_name":
-    case "ambiguous_user_name":
-    case "ambiguous_label_name":
-      return 6;
-    case "validation_failed":
-    case "invalid_field_value":
-    case "status_not_in_stage":
-    case "reply_depth_exceeded":
-    case "task_archived":
-    case "conflict":
-      return 7;
-    case "destructive_action_disabled":
-      return 8;
-    case "rate_limited":
-      return 9;
-    case "network":
-      return 10;
-    case "unknown":
-      return 1;
-    default: {
-      // Exhaustiveness guard: a new code added to the union forces a decision here.
-      const _never: never = code;
-      void _never;
-      return 1;
-    }
-  }
+	switch (code) {
+		case 'auth_invalid':
+		case 'auth_expired':
+			return 3;
+		case 'permission_denied':
+			return 4;
+		case 'project_not_found':
+		case 'task_not_found':
+		case 'status_not_found':
+		case 'stage_not_found':
+		case 'user_not_found':
+		case 'label_not_found':
+		case 'field_not_found':
+			return 5;
+		case 'ambiguous_project_name':
+		case 'ambiguous_user_name':
+		case 'ambiguous_label_name':
+			return 6;
+		case 'validation_failed':
+		case 'invalid_field_value':
+		case 'status_not_in_stage':
+		case 'reply_depth_exceeded':
+		case 'task_archived':
+		case 'conflict':
+			return 7;
+		case 'destructive_action_disabled':
+			return 8;
+		case 'rate_limited':
+			return 9;
+		case 'network':
+			return 10;
+		case 'unknown':
+			return 1;
+		default: {
+			// Exhaustiveness guard: a new code added to the union forces a decision here.
+			const _never: never = code;
+			void _never;
+			return 1;
+		}
+	}
 }
 
 /**
@@ -229,17 +227,17 @@ export function exitCodeFor(code: McpErrorCode): number {
  * Never returns (calls `process.exit`).
  */
 export function renderError(e: McpError, opts: CliGlobalOptions): never {
-  const shape = e.toJSON();
-  if (jsonMode(opts)) {
-    diag(JSON.stringify({ error: shape }, null, 2));
-  } else {
-    diag(`error: ${shape.code}: ${shape.message}`);
-    if (shape.hint) diag(`  hint: ${shape.hint}`);
-    if (shape.candidates && shape.candidates.length > 0) {
-      diag(`  candidates: ${shape.candidates.join(", ")}`);
-    }
-  }
-  process.exit(exitCodeFor(e.code));
+	const shape = e.toJSON();
+	if (jsonMode(opts)) {
+		diag(JSON.stringify({ error: shape }, null, 2));
+	} else {
+		diag(`error: ${shape.code}: ${shape.message}`);
+		if (shape.hint) diag(`  hint: ${shape.hint}`);
+		if (shape.candidates && shape.candidates.length > 0) {
+			diag(`  candidates: ${shape.candidates.join(', ')}`);
+		}
+	}
+	process.exit(exitCodeFor(e.code));
 }
 
 /**
@@ -247,7 +245,7 @@ export function renderError(e: McpError, opts: CliGlobalOptions): never {
  * (DOC-CLI-OUTPUT: "CLI usage/parse error" → exit 2). Never returns.
  */
 export function renderUsageError(message: string, usage?: string): never {
-  diag(`error: ${message}`);
-  if (usage) diag(usage);
-  process.exit(2);
+	diag(`error: ${message}`);
+	if (usage) diag(usage);
+	process.exit(2);
 }

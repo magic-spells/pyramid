@@ -16,24 +16,24 @@ let cached: string | undefined;
  * (compiled), so it never depends on a fixed number of "../".
  */
 export function getVersion(): string {
-  if (cached !== undefined) return cached;
-  let dir = dirname(fileURLToPath(import.meta.url));
-  for (let i = 0; i < 8; i++) {
-    try {
-      const pkg = JSON.parse(readFileSync(join(dir, 'package.json'), 'utf8')) as {
-        version?: string;
-      };
-      if (typeof pkg.version === 'string') {
-        cached = pkg.version;
-        return cached;
-      }
-    } catch {
-      // No package.json here — keep climbing.
-    }
-    const parent = dirname(dir);
-    if (parent === dir) break;
-    dir = parent;
-  }
-  cached = '0.0.0';
-  return cached;
+	if (cached !== undefined) return cached;
+	let dir = dirname(fileURLToPath(import.meta.url));
+	for (let i = 0; i < 8; i++) {
+		try {
+			const pkg = JSON.parse(readFileSync(join(dir, 'package.json'), 'utf8')) as {
+				version?: string;
+			};
+			if (typeof pkg.version === 'string') {
+				cached = pkg.version;
+				return cached;
+			}
+		} catch {
+			// No package.json here — keep climbing.
+		}
+		const parent = dirname(dir);
+		if (parent === dir) break;
+		dir = parent;
+	}
+	cached = '0.0.0';
+	return cached;
 }

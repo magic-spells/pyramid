@@ -40,9 +40,9 @@ const INSTRUCTIONS = `Pyramid MCP v${getVersion()} — drive the Pyramid project
  * safe. The result always equals the op's intended snake_case tool name.
  */
 function toolNameFor(op: Operation): string {
-  const meta = (op as { meta?: { mcpTool?: string } }).meta;
-  if (meta?.mcpTool) return meta.mcpTool;
-  return op.name.replace(/\./g, '_');
+	const meta = (op as { meta?: { mcpTool?: string } }).meta;
+	if (meta?.mcpTool) return meta.mcpTool;
+	return op.name.replace(/\./g, '_');
 }
 
 /**
@@ -52,9 +52,9 @@ function toolNameFor(op: Operation): string {
  * to an empty shape so a non-object schema never crashes registration.
  */
 function inputShapeFor(op: Operation): ZodRawShape {
-  const shape = (op.input as { shape?: unknown }).shape;
-  if (shape && typeof shape === 'object') return shape as ZodRawShape;
-  return {} as ZodRawShape;
+	const shape = (op.input as { shape?: unknown }).shape;
+	if (shape && typeof shape === 'object') return shape as ZodRawShape;
+	return {} as ZodRawShape;
 }
 
 /**
@@ -63,57 +63,51 @@ function inputShapeFor(op: Operation): ZodRawShape {
  * connected to a transport — the caller (bin/pyramid.ts) owns transport + lifecycle.
  */
 export function createMcpServer(ctx: OpContext): McpServer {
-  const server = new McpServer(
-    { name: 'pyramid', version: getVersion() },
-    { instructions: INSTRUCTIONS },
-  );
+	const server = new McpServer(
+		{ name: 'pyramid', version: getVersion() },
+		{ instructions: INSTRUCTIONS }
+	);
 
-  for (const op of operations) {
-    registerOperationTool(server, op, ctx);
-  }
+	for (const op of operations) {
+		registerOperationTool(server, op, ctx);
+	}
 
-  registerPrompts(server, ctx);
-  registerResources(server, ctx);
+	registerPrompts(server, ctx);
+	registerResources(server, ctx);
 
-  return server;
+	return server;
 }
 
 /** Register one operation as an MCP tool. */
-function registerOperationTool(
-  server: McpServer,
-  op: Operation,
-  ctx: OpContext,
-): void {
-  server.registerTool(
-    toolNameFor(op),
-    {
-      description: op.summary,
-      inputSchema: inputShapeFor(op),
-    },
-    async (args: unknown) => {
-      try {
-        // Re-validate at the boundary: the SDK validates against the JSON Schema,
-        // but we parse with the source zod schema so `op.run` receives the exact
-        // parsed/typed input (defaults applied, unknown keys handled per schema).
-        const input = op.input.parse(args ?? {});
-        const result = await op.run(input, ctx);
-        return {
-          content: [
-            { type: 'text' as const, text: JSON.stringify(result, null, 2) },
-          ],
-        };
-      } catch (err) {
-        const mapped = toMcpError(err);
-        return {
-          content: [
-            {
-              type: 'text' as const,
-              text: JSON.stringify({ error: mapped.toJSON() }),
-            },
-          ],
-          isError: true,
-        };
-      }
-    },
-  );
+function registerOperationTool(server: McpServer, op: Operation, ctx: OpContext): void {
+	server.registerTool(
+		toolNameFor(op),
+		{
+			description: op.summary,
+			inputSchema: inputShapeFor(op),
+		},
+		async (args: unknown) => {
+			try {
+				// Re-validate at the boundary: the SDK validates against the JSON Schema,
+				// but we parse with the source zod schema so `op.run` receives the exact
+				// parsed/typed input (defaults applied, unknown keys handled per schema).
+				const input = op.input.parse(args ?? {});
+				const result = await op.run(input, ctx);
+				return {
+					content: [{ type: 'text' as const, text: JSON.stringify(result, null, 2) }],
+				};
+			} catch (err) {
+				const mapped = toMcpError(err);
+				return {
+					content: [
+						{
+							type: 'text' as const,
+							text: JSON.stringify({ error: mapped.toJSON() }),
+						},
+					],
+					isError: true,
+				};
+			}
+		}
+	);
 }
