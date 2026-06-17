@@ -1,0 +1,23 @@
+---
+name: Pyramid HTTP API
+kind: external-microservice
+status: built
+vendor: Pyramid (pyramid-server)
+purpose: The upstream project-management API the MCP drives, as the key's user.
+docs_url: https://github.com/magic-spells/pyramid
+credentials_envs:
+  - PYRAMID_API_KEY
+connections:
+  - DOC-AUTH-WORKSPACE
+  - DOC-ERROR-MODEL
+---
+
+The upstream Pyramid HTTP API — the fixed boundary this package adapts to. Owned by `pyramid-server` (Go); this MCP/CLI package never changes it. Read exact endpoint shapes from that repo's plan (`repo: "pyramid-server"`, its `API-*` / `DATATYPE-*` cards) when wiring a tool.
+
+- **Base URL:** `PYRAMID_BASE_URL` (`https://api.pyramid.magicspells.io` prod / `http://localhost:8080` dev). Versioned resources under **`/v1`**.
+- **Auth:** `Authorization: Bearer pyk_<prefix>_<secret>` on every call; CSRF-exempt header auth. See [[DOC-AUTH-WORKSPACE]].
+- **Workspace:** the key is pinned to one workspace server-side; `X-Workspace-*` hints are ignored. The package is single-workspace per key.
+- **Errors:** `{ "error": { code, message, details } }` (`details` always an object). Status codes: 401 `unauthorized`, 403 `forbidden`, 404 `*_not_found`, 422 `validation_failed` (400 only for malformed JSON), 409 `conflict` (slug/prefix collisions and If-Match precondition). No 429 exists today. Mapped by [[DOC-ERROR-MODEL]].
+- **Optimistic concurrency:** update + delete (task & comment) require an `If-Match` ETag — see [[DOC-CONCURRENCY]].
+- **Workflow is multi-endpoint:** `/workflow` returns only stages+statuses; labels, members, and custom-field templates are separate routes (matters for the resolver, [[DOC-NAME-RESOLUTION]]).
+- **Surface:** Workspace -> Folder(Client) -> Project -> Stage -> Status -> Task, plus comments / followers / notifications / search. The audited route + payload contract is [[DOC-BACKEND-CONTRACT]]; quirks (`task`==`task`, derived human keys, per-stage responsibilities, stage-scoped comments, fractional ordering) live in [[DOC-DESIGN-RULES]].

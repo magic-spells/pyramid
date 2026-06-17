@@ -1,0 +1,48 @@
+---
+name: CLI design
+kind: guide
+status: planned
+connections:
+  - DOC-ARCHITECTURE
+  - FILE-OPERATIONS
+  - FILE-CLI
+  - DOC-CLI-OUTPUT
+  - DATATYPE-CLI-OPTIONS
+  - DOC-NAME-RESOLUTION
+---
+
+# CLI design
+
+## Why a CLI when there's already an MCP
+
+The MCP serves agents that *speak MCP* (Claude Code / Desktop, Cursor, custom MCP runtimes).
+The CLI covers the quadrant MCP structurally cannot:
+
+- **Humans** at a terminal.
+- **Scripts / CI / cron** — non-LLM automation.
+- **Shell-only agents** — a model given a Bash tool but no MCP host. For these the CLI *is* the
+  integration surface: `pyramid task next --json`, do the work, `pyramid task update`.
+
+It is additive, not a replacement — same core, second skin ([[DOC-ARCHITECTURE]]).
+
+## One bin, subcommands
+
+`pyramid <group> <verb> [args] [--flags]` ([[DATATYPE-CLI-OPTIONS]]). `pyramid mcp` starts the
+stdio server; `pyramid doctor` is the auth check; the rest mirror the MCP tools **1:1** because
+both render from [[FILE-OPERATIONS]]. Verb ≡ tool, so an agent's mental model transfers between
+the two surfaces.
+
+## Surface (mirrors the MCP operations)
+
+- `pyramid whoami` · `pyramid project list` · `pyramid project show <NAME>`
+- `pyramid task list [--project P] [--status S] [--mine] [--archived]`
+- `pyramid task show <KEY>` · `pyramid task next` — the caller's work queue
+- `pyramid task create … | --file tasks.json` (bulk) · `pyramid task update <KEY> …`
+- `pyramid task move <KEY> --status "In Review" [--after KEY | --before KEY]`
+- `pyramid task comment <KEY> "…"` · `pyramid comment reply <ID> "…"`
+- `pyramid task archive <KEY>` · `pyramid task delete <KEY>` — gated ([[DOC-DESIGN-RULES]] r9)
+
+Inputs accept **names / keys**, not UUIDs ([[DOC-NAME-RESOLUTION]]); output hydrates names —
+the same invariants the MCP upholds. The headline path is the agent loop: `task next` →
+do work → `task update` / `task comment`. Output / exit-code / stream contract:
+[[DOC-CLI-OUTPUT]].
