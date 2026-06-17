@@ -1,6 +1,6 @@
 ---
 name: AddCommentInput
-status: planned
+status: built
 connections:
   - DATATYPE-COMMENT
 ---

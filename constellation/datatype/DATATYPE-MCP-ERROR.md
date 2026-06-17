@@ -1,6 +1,6 @@
 ---
 name: McpError
-status: planned
+status: built
 connections:
   - DOC-ERROR-MODEL
 ---

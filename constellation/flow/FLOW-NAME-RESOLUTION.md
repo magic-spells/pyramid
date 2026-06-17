@@ -1,6 +1,6 @@
 ---
 name: Name → ID resolution
-status: planned
+status: built
 connections:
   - FILE-RESOLVER
   - DOC-NAME-RESOLUTION

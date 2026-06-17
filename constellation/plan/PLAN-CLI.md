@@ -1,6 +1,6 @@
 ---
 name: CLI surface — pyramid command
-status: planned
+status: built
 connections:
   - PLAN-PROJECT
   - DOC-CLI

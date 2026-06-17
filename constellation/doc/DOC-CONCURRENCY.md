@@ -1,7 +1,7 @@
 ---
 name: Optimistic concurrency (If-Match / ETag)
 kind: rule
-status: planned
+status: built
 connections:
   - DOC-BACKEND-CONTRACT
   - DOC-ERROR-MODEL

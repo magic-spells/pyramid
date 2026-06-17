@@ -1,6 +1,6 @@
 ---
 name: TaskSummary
-status: planned
+status: built
 connections:
   - DATATYPE-WORKFLOW
   - DOC-RENDERING

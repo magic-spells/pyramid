@@ -1,6 +1,6 @@
 ---
 name: ReplyCommentInput
-status: planned
+status: built
 connections:
   - DATATYPE-COMMENT
 ---

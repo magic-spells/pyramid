@@ -1,6 +1,6 @@
 ---
 name: CreateTasksBulkInput
-status: planned
+status: built
 connections:
   - DATATYPE-CREATE-TASK-INPUT
 ---
@@ -12,6 +12,7 @@ ready-for-design phase". **Atomic**: any row failing validation rolls back the w
 ```ts
 interface CreateTasksBulkInput {
   project: string;
+  template: string; // required by the operation; resolves to top-level template_id
   defaults?: { stage?: string; status?: string; labels?: string[] }; // applied to each row
   tasks: Array<Omit<CreateTaskInput, "project">>;
 }

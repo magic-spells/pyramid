@@ -1,7 +1,7 @@
 ---
 name: Name → ID resolution
 kind: rule
-status: planned
+status: built
 connections:
   - DATATYPE-MCP-ERROR
   - DATATYPE-WORKFLOW
@@ -9,9 +9,10 @@ connections:
 
 # Name → ID resolution
 
-Inputs accept names; the resolver maps them to UUIDs with **deterministic precedence** — the
-same input always resolves the same way. Backed by [[FILE-RESOLVER]] and the cached
-[[DATATYPE-WORKFLOW]].
+Inputs accept names; the resolver maps project/workflow names to UUIDs with **deterministic
+precedence** — the same input always resolves the same way. Backed by [[FILE-RESOLVER]] and the
+cached [[DATATYPE-WORKFLOW]]. Task key/UUID lookup is handled by [[FILE-OPERATIONS]]'s
+`resolveTaskRef` helper because it needs task search / task detail endpoints, not workflow data.
 
 | Kind | Precedence |
 |---|---|
@@ -21,10 +22,11 @@ same input always resolves the same way. Backed by [[FILE-RESOLVER]] and the cac
 | User | email exact → `display_name` exact → unique fuzzy |
 | Label | per project: name exact → unique fuzzy |
 | Custom field | per template: key → name |
-| Task | human key `WEB-42` → UUID; also accepts a raw UUID |
+| Task | human key `WEB-42` → search exact key → UUID; raw UUID → `GET /v1/tasks/{id}` |
 
 - **Ambiguity is an error, not a guess** — two labels matching "bug" → `ambiguous_label_name`
   with `candidates` ([[DATATYPE-MCP-ERROR]]); the AI asks or picks.
-- **Cache:** in-process LRU keyed by `(project_id, kind)`, 60s TTL, lazy-populated,
-  invalidated when an op changes it (creating a label clears `(project,"labels")`).
-- **Force-refresh:** the `doctor` prompt and a `--no-cache` debug flag bypass it.
+- **Cache:** in-process 60s TTL keyed by project workflow plus a workspace project-list cache,
+  lazy-populated and invalidated by `Resolver.invalidate(...)`.
+- **Force-refresh:** `--no-cache` is parsed by the CLI as a reserved debug flag, but no shipped
+  operation consumes it yet.

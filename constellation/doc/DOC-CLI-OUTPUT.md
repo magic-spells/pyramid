@@ -1,7 +1,7 @@
 ---
 name: CLI output & exit contract
 kind: guide
-status: planned
+status: built
 connections:
   - DATATYPE-MCP-ERROR
   - DOC-ERROR-MODEL
@@ -24,7 +24,8 @@ The CLI must be equally usable by a human reading a terminal and an agent parsin
   `destructive_action_disabled`, … — so scripts branch on `$?` and agents get a typed signal,
   not a parsed string. Under `--json` an error prints as `{ "error": { code, message, … } }`;
   one human line otherwise.
-- **No silent truncation.** Lists surface pagination / next-cursor ([[DOC-DESIGN-RULES]] r8);
-  `--limit` / `--all` control volume explicitly.
-- **Destructive.** `delete` and other gated verbs require `PYRAMID_ALLOW_DESTRUCTIVE=1` **and**
-  an interactive confirm — or `--yes` for non-interactive callers ([[DOC-DESIGN-RULES]] r9).
+- **No silent truncation.** Lists surface pagination / next-cursor ([[DOC-DESIGN-RULES]] r10).
+  `--limit` controls page size and `--cursor` continues a page. `--all` is parsed as a reserved
+  flag but is not wired to auto-paginate in the shipped CLI.
+- **Destructive.** The CLI requires `--yes` for destructive commands; the operation itself also
+  requires `PYRAMID_ALLOW_DESTRUCTIVE=1` ([[DOC-DESIGN-RULES]] r11).

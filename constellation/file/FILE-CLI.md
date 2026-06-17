@@ -1,6 +1,6 @@
 ---
 name: src/cli/index.ts
-status: planned
+status: built
 path: src/cli/index.ts
 language: typescript
 summary: Builds the pyramid subcommand tree from the operation registry; parses argv, renders human/JSON.

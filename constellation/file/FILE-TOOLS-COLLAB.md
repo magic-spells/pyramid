@@ -1,13 +1,15 @@
 ---
-name: src/tools/collab.ts
+name: future collaboration/admin operations
 status: planned
-path: src/tools/collab.ts
+path: src/operations/index.ts
 language: typescript
-summary: Phase-3 collaboration & admin tools.
+summary: Future Phase-3 collaboration/admin operations; not present in the shipped registry.
 connections:
   - DOC-TOOLS-COLLAB
   - PLAN-PHASE-3-COLLAB-ADMIN
 ---
 
-Phase-3 tools: followers, labels, estimates, custom-fields, notifications, workflow-admin.
-See [[DOC-TOOLS-COLLAB]] / [[PLAN-PHASE-3-COLLAB-ADMIN]]. Not built in MVP.
+Future Phase-3 collaboration/admin operations. There is no shipped `src/tools/collab.ts`; when
+these land, they should be implemented as operations in [[FILE-OPERATIONS]] and registered through
+[[FILE-SERVER]], matching the current registry architecture. See [[DOC-TOOLS-COLLAB]] /
+[[PLAN-PHASE-3-COLLAB-ADMIN]].

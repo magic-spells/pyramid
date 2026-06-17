@@ -1,6 +1,6 @@
 ---
 name: Create task (end-to-end)
-status: planned
+status: built
 triggers:
   - kind: manual
 connections:

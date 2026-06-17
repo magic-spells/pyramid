@@ -1,7 +1,7 @@
 ---
 name: create_tasks_bulk
 kind: mcp-tool
-status: planned
+status: built
 methods:
   POST:
     request_schema: DATATYPE-CREATE-TASKS-BULK-INPUT

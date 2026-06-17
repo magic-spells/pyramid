@@ -1,7 +1,7 @@
 ---
 name: Critical design rules
 kind: rule
-status: planned
+status: built
 connections:
   - EXTERNAL-PYRAMID-API
   - DATATYPE-MCP-ERROR
@@ -36,9 +36,8 @@ they hold for BOTH surfaces (MCP tools + CLI).
 10. **Never auto-paginate** — list ops take `limit` (default ~25, cap ~50) + `cursor` and return
     `{ items, next_cursor, has_more }`; surface "showing N of M — ask for more," never silently
     walk every page.
-11. **Confirm bulk + destructive** — ops affecting more than ~3 tasks, or any delete, take a
-    `confirm` flag (default false): when false, return a preview of the resolved targets and execute
-    only on `confirm:true`. Hard delete additionally requires `PYRAMID_ALLOW_DESTRUCTIVE=1`
-    ([[DATATYPE-MCP-CONFIG]]).
+11. **Gate destructive and bulk actions** — shipped hard delete requires
+    `PYRAMID_ALLOW_DESTRUCTIVE=1` ([[DATATYPE-MCP-CONFIG]]); the CLI additionally requires `--yes`.
+    Future bulk fan-outs should use an explicit preview/confirm flow before touching many tasks.
 12. **Dates are UTC** — render timestamps UTC-labeled or relative-with-label, never bare local;
     date-only fields (due/start) without a time.

@@ -1,6 +1,6 @@
 ---
 name: Test plan
-status: planned
+status: built
 connections:
   - FILE-RESOLVER
   - FILE-ERRORS
@@ -16,13 +16,14 @@ connections:
   cache TTL + invalidation.
 - **Error-mapping unit tests** ([[FILE-ERRORS]]) — each HTTP status/envelope → expected
   [[DATATYPE-MCP-ERROR]] `code`.
-- **Tool contract/snapshot tests** — every tool against recorded Pyramid fixtures; snapshots
-  catch silent shape drift.
-- **Integration** — against a local `pyramid-server` with a test `pyk_` key: list projects,
-  list my tasks, create/move through every stage ([[FLOW-CREATE-TASK]]), comment + mention,
-  reply, archive/unarchive.
-- **`doctor` smoke** — validates auth, prints user/workspace/projects, pings the workflow
-  endpoint.
+- **Operation registry unit tests** ([[FILE-OPERATIONS]]) — discovery, task read/write/move/archive/delete,
+  comments, custom-field validation, and destructive gating against mocked client/resolver seams.
+- **CLI unit tests** ([[FILE-CLI]], [[DOC-CLI-OUTPUT]]) — JSON-vs-human rendering, stderr/stdout
+  separation, usage errors, and exit-code mapping.
+- **Package checks** — `npm run build`, `npm test`, and `npm pack --dry-run` before publish.
 
-Mirrors the verification approach from the original MCP design doc, now consolidated into
-this plan. `vitest` + `tsx`.
+Still not verified live: an integration smoke against a real/local `pyramid-server` with a test
+`pyk_` key: list projects, list my tasks, create/move through a real workflow, comment + mention,
+reply, archive/unarchive, and `doctor`.
+
+Implemented with `vitest` + `tsx`; the live smoke is what would move this from built to verified.

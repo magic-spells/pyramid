@@ -1,6 +1,6 @@
 ---
 name: src/client/pyramid-client.ts
-status: planned
+status: built
 path: src/client/pyramid-client.ts
 language: typescript
 summary: Typed undici wrapper over the Pyramid API with bearer auth + error mapping.

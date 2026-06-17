@@ -1,6 +1,6 @@
 ---
 name: MoveTaskInput
-status: planned
+status: built
 connections:
   - DATATYPE-TASK-SUMMARY
 ---

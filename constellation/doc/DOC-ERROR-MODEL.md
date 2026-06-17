@@ -1,7 +1,7 @@
 ---
 name: Error model
 kind: rule
-status: planned
+status: built
 connections:
   - DATATYPE-MCP-ERROR
   - EXTERNAL-PYRAMID-API

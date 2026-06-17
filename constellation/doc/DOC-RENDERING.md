@@ -1,7 +1,7 @@
 ---
 name: Rendering (MCP task cards)
 kind: guide
-status: planned
+status: built
 connections:
   - DOC-ARCHITECTURE
   - FILE-SERVER

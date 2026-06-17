@@ -1,6 +1,6 @@
 ---
 name: Phase 2 — Core tools (MVP)
-status: planned
+status: built
 connections:
   - PLAN-PROJECT
 ---
@@ -20,5 +20,5 @@ The high-value verbs that satisfy the motivating prompts ("what do I own in MOGO
 - Resources: `pyramid://me`, `pyramid://projects`, `pyramid://projects/{slug}/workflow`
   ([[FILE-RESOURCES]]).
 
-Exit criteria: end-to-end in Claude Code — create/move a task through a real workflow,
-comment with a mention, reply; snapshot/contract tests per tool ([[TEST-SUITE]]).
+Built and covered by unit tests for the registry/client/resolver/CLI. A live Claude Code smoke
+against a real backend key remains the step that would move this from built to verified.

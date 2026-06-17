@@ -1,7 +1,7 @@
 ---
 name: move_task
 kind: mcp-tool
-status: planned
+status: built
 methods:
   POST:
     request_schema: DATATYPE-MOVE-TASK-INPUT

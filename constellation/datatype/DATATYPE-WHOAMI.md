@@ -1,6 +1,6 @@
 ---
 name: WhoAmI
-status: planned
+status: built
 connections:
   - DOC-AUTH-WORKSPACE
   - DATATYPE-PROJECT-SUMMARY

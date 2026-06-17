@@ -45,4 +45,5 @@ Auth is settled and shipped ([[DOC-AUTH-WORKSPACE]]): a `pyk_` key is pinned to 
 
 - Every operation: inputs accept **names** not UUIDs where possible; outputs **hydrate** names alongside UUIDs; errors are **typed** ([[DATATYPE-MCP-ERROR]]). The invariants that close off AI failure modes are in [[DOC-DESIGN-RULES]].
 - MCP tools are modeled as `API-` cards with `kind: mcp-tool`. Core mutations get their own card; read and discovery tools are grouped in `DOC-TOOLS-*` cards.
-- Read-friendly by default: bulk/destructive behavior requires confirmation, and hard destructive operations require `PYRAMID_ALLOW_DESTRUCTIVE=1`.
+- Read-friendly by default: shipped hard delete requires `PYRAMID_ALLOW_DESTRUCTIVE=1`, and the CLI
+  requires `--yes`; future bulk fan-outs should use preview/confirm before touching many tasks.

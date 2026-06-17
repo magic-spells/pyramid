@@ -1,6 +1,6 @@
 ---
 name: TaskReference
-status: planned
+status: built
 connections:
   - DATATYPE-TASK-DETAIL
   - EXTERNAL-PYRAMID-API

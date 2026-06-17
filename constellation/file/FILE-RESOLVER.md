@@ -1,6 +1,6 @@
 ---
 name: src/cache/resolver.ts
-status: planned
+status: built
 path: src/cache/resolver.ts
 language: typescript
 summary: Name→UUID resolution with a 60s LRU keyed by (project, kind).

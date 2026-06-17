@@ -1,6 +1,6 @@
 ---
 name: System overview
-status: planned
+status: built
 connections:
   - EXTERNAL-PYRAMID-API
 ---

@@ -1,7 +1,7 @@
 ---
 name: CLI design
 kind: guide
-status: planned
+status: built
 connections:
   - DOC-ARCHITECTURE
   - FILE-OPERATIONS
@@ -34,13 +34,13 @@ the two surfaces.
 
 ## Surface (mirrors the MCP operations)
 
-- `pyramid whoami` · `pyramid project list` · `pyramid project show <NAME>`
+- `pyramid whoami` · `pyramid project list` · `pyramid project workflow <PROJECT>`
 - `pyramid task list [--project P] [--status S] [--mine] [--archived]`
 - `pyramid task show <KEY>` · `pyramid task next` — the caller's work queue
-- `pyramid task create … | --file tasks.json` (bulk) · `pyramid task update <KEY> …`
+- `pyramid task create <TITLE> …` · `pyramid task bulk <PROJECT> --template T --file tasks.json` · `pyramid task update <KEY> …`
 - `pyramid task move <KEY> --status "In Review" [--after KEY | --before KEY]`
 - `pyramid task comment <KEY> "…"` · `pyramid comment reply <ID> "…"`
-- `pyramid task archive <KEY>` · `pyramid task delete <KEY>` — gated ([[DOC-DESIGN-RULES]] r9)
+- `pyramid task archive <KEY>` (`--unarchive` restores) · `pyramid task delete <KEY> --yes` — gated ([[DOC-DESIGN-RULES]] r11)
 
 Inputs accept **names / keys**, not UUIDs ([[DOC-NAME-RESOLUTION]]); output hydrates names —
 the same invariants the MCP upholds. The headline path is the agent loop: `task next` →

@@ -1,7 +1,7 @@
 ---
-name: src/tools/comments.ts
-status: planned
-path: src/tools/comments.ts
+name: src/operations/index.ts comment operations
+status: built
+path: src/operations/index.ts
 language: typescript
 summary: Comment read/write tools (stage-scoped, 1-level replies).
 connections:
@@ -10,6 +10,7 @@ connections:
   - DOC-TOOLS-COMMENTS
 ---
 
-Comment tools: `list_comments` (stage-scoped), [[API-TOOL-ADD-COMMENT]],
-[[API-TOOL-REPLY-COMMENT]], plus `react_to_comment` / `unreact_to_comment` (phase 3).
-Enforces the 1-level reply rule before calling ([[DOC-DESIGN-RULES]] rule 5).
+Comment operations live in [[FILE-OPERATIONS]] and are registered as tools by [[FILE-SERVER]]:
+`list_comments` (stage-scoped), [[API-TOOL-ADD-COMMENT]], and [[API-TOOL-REPLY-COMMENT]].
+The reply operation enforces the one-level reply rule before calling Pyramid
+([[DOC-DESIGN-RULES]] rule 6). Reactions are not part of the shipped package.

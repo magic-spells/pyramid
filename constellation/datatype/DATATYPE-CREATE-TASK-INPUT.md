@@ -1,6 +1,6 @@
 ---
 name: CreateTaskInput
-status: planned
+status: built
 connections:
   - DOC-NAME-RESOLUTION
   - DATATYPE-TASK-DETAIL
@@ -18,7 +18,7 @@ interface CreateTaskInput {
   description?: string;
   status?: string;            // name/key/category — drives placement (carries the stage)
   stage?: string;             // name/key — only used to derive a default status
-  priority?: "none" | "low" | "medium" | "high" | "urgent"; // "normal" → "medium"; default "none"
+  priority?: "none" | "low" | "medium" | "high" | "urgent";
   due_date?: string;          // YYYY-MM-DD or RFC3339 (stored as a date)
   estimate_hours?: number;
   labels?: string[];          // label names
@@ -29,7 +29,8 @@ interface CreateTaskInput {
 }
 ```
 
-**Assignment quirk:** "assign to Bob" must target a stage; if the user names none, default to the
-task's stage (the one derived from `status`). **Dependencies are NOT settable at create** — separate
-call. The server stores `custom_fields` raw with no type check on create, so the MCP validates each
-value against the field's `field_type` first ([[DOC-DESIGN-RULES]] rule 8).
+**Assignment quirk:** "assign to Bob" targets the task's create stage. If the user names neither a
+stage nor status, the operation resolves the project's first status and uses that status's stage for
+the `stage_responsibilities` entry. **Dependencies are NOT settable at create**. Custom-field values
+are resolved to field UUIDs and validated against the field's `field_type` before the write
+([[DOC-DESIGN-RULES]] rule 8).

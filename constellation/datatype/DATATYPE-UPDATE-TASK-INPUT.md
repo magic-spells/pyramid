@@ -1,6 +1,6 @@
 ---
 name: UpdateTaskInput
-status: planned
+status: built
 connections:
   - DATATYPE-TASK-DETAIL
 ---
@@ -17,8 +17,8 @@ interface UpdateTaskInput {
   priority?: "none" | "low" | "medium" | "high" | "urgent";
   due_date?: string | null;
   start_date?: string | null;
-  estimate_hours?: number | null;
-  client_visible?: boolean; client_title?: string | null; client_description?: string | null;
+  estimate?: number;
+  client_visible?: boolean; client_title?: string; client_description?: string;
   // Convenience fields the backend PATCH does NOT accept — the MCP fans each out (see below):
   owner?: string | null;   // name; null clears
   reporter?: string | null;

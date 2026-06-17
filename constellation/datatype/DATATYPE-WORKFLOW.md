@@ -1,6 +1,6 @@
 ---
 name: Workflow
-status: planned
+status: built
 connections:
   - DATATYPE-PROJECT-SUMMARY
   - DOC-NAME-RESOLUTION

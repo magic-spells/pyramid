@@ -1,6 +1,6 @@
 ---
 name: src/operations/index.ts
-status: planned
+status: built
 path: src/operations/index.ts
 language: typescript
 summary: Surface-agnostic operation registry — the single source the MCP tools and the CLI both render from.
@@ -17,10 +17,11 @@ The seam that keeps the two surfaces DRY. Each **operation** is one entry:
 
 ```ts
 interface Operation<I, O> {
-  name: string;                              // e.g. "task.create" — the verb shared by tool + command
+  name: string;                              // e.g. "create_task" — MCP tool name
   summary: string;
-  input: ZodType<I>;                         // SDK emits JSON Schema (MCP); CLI derives flags/args from it
+  input: ZodObject<ZodRawShape>;             // SDK emits JSON Schema (MCP); CLI derives flags/args
   run(input: I, ctx: OpContext): Promise<O>; // resolve names → client call → hydrate
+  meta?: { cli?: { group: string; verb: string; positionals?: string[] }; destructive?: boolean };
 }
 ```
 
@@ -31,7 +32,13 @@ interface Operation<I, O> {
 subcommand + arg parser. The `API-TOOL-*` cards (e.g. [[API-TOOL-CREATE-TASK]]) **are** these
 operations — one registry, two renderings.
 
-> **Shared seam — owned jointly with the MCP build.** Defining it here is what lets the MCP
-> tools stay thin and the CLI add zero new Pyramid logic. If the MCP tools are written directly
-> against `server.tool` instead, this registry must wrap them before the CLI can reuse them.
-> See [[DOC-PACKAGE-RENAME]].
+Built operation surface:
+
+- Discovery: `whoami`, `list_projects`, `get_project_workflow`, `list_my_tasks`.
+- Tasks: `list_tasks`, `get_task`, `search_tasks`, `create_task`, `create_tasks_bulk`,
+  `update_task`, `move_task`, `archive_task`, `delete_task`.
+- Comments: `list_comments`, `add_comment`, `reply_to_comment`.
+
+`delete_task` is marked destructive in `meta` and is gated by `PYRAMID_ALLOW_DESTRUCTIVE=1`.
+The planned `set_task_status`, bulk-update, references, and workflow-admin cards remain future
+operations, not entries in the shipped registry.

@@ -1,6 +1,6 @@
 ---
 name: src/errors.ts
-status: planned
+status: built
 path: src/errors.ts
 language: typescript
 summary: McpError helpers + HTTP/envelope→code mapping.

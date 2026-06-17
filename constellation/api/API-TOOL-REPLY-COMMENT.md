@@ -1,7 +1,7 @@
 ---
 name: reply_to_comment
 kind: mcp-tool
-status: planned
+status: built
 methods:
   POST:
     request_schema: DATATYPE-REPLY-COMMENT-INPUT

@@ -1,7 +1,7 @@
 ---
 name: create_task
 kind: mcp-tool
-status: planned
+status: built
 methods:
   POST:
     request_schema: DATATYPE-CREATE-TASK-INPUT

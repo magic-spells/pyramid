@@ -1,6 +1,6 @@
 ---
 name: ProjectSummary
-status: planned
+status: built
 connections:
   - DATATYPE-WORKFLOW
 ---

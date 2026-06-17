@@ -1,7 +1,7 @@
 ---
 name: update_task
 kind: mcp-tool
-status: planned
+status: built
 methods:
   POST:
     request_schema: DATATYPE-UPDATE-TASK-INPUT
