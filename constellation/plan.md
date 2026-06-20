@@ -35,15 +35,15 @@ Auth is settled and shipped ([[DOC-AUTH-WORKSPACE]]): a `pyk_` key is pinned to 
 - **TypeScript** (ESM, Node >= 22) builds to `dist/`; npm package is `@magic-spells/pyramid`, run with `npx -y @magic-spells/pyramid ...`. The MCP server is explicit: `npx -y @magic-spells/pyramid mcp`. See [[DOC-PACKAGE-RENAME]] and [[DOC-PACKAGING]].
 - `@modelcontextprotocol/sdk` (server), `zod` (tool schemas), and `undici` (HTTP client). MCP transport is **stdio**. See [[FILE-SERVER]] and [[FILE-PYRAMID-CLIENT]].
 - Config is read once by [[FILE-CONFIG]]. API key resolution is `PYRAMID_API_KEY` env -> OS keychain -> error ([[FLOW-CREDENTIAL-RESOLUTION]], [[DOC-CREDENTIAL-STORAGE]]). `PYRAMID_BASE_URL` defaults to `https://api.pyramid.magicspells.io`; destructive operations are gated by `PYRAMID_ALLOW_DESTRUCTIVE=1`.
+- `pyramid login` is the preferred local setup path: it opens `pyramid-web` `/auth/cli`, receives a minted `pyk_` key through a loopback callback, and stores it in the same keychain slot used by `mcp`, `doctor`, and CLI commands.
 
 ## Current maturity
 
-- Built and unit-tested: package/bin dispatch, `mcp`, `doctor`, `version`, local credential commands, config/keychain resolution, MCP resources/prompts, CLI rendering, resolver/client/error plumbing, and the core task/comment operations represented by the operation registry.
-- Still future/planned: browser login handoff ([[FLOW-CLI-BROWSER-LOGIN]]), collaboration/admin extras ([[PLAN-PHASE-3-COLLAB-ADMIN]]), and v2 roadmap items ([[PLAN-V2-ROADMAP]]).
+- Built and unit-tested: package/bin dispatch, `mcp`, `doctor`, `version`, local credential commands including browser login handoff, config/keychain resolution, MCP resources/prompts, CLI rendering, resolver/client/error plumbing, and the core task/comment operations represented by the operation registry.
+- Still future/planned: collaboration/admin extras ([[PLAN-PHASE-3-COLLAB-ADMIN]]) and v2 roadmap items ([[PLAN-V2-ROADMAP]]).
 
 ## Conventions
 
 - Every operation: inputs accept **names** not UUIDs where possible; outputs **hydrate** names alongside UUIDs; errors are **typed** ([[DATATYPE-MCP-ERROR]]). The invariants that close off AI failure modes are in [[DOC-DESIGN-RULES]].
 - MCP tools are modeled as `API-` cards with `kind: mcp-tool`. Core mutations get their own card; read and discovery tools are grouped in `DOC-TOOLS-*` cards.
-- Read-friendly by default: shipped hard delete requires `PYRAMID_ALLOW_DESTRUCTIVE=1`, and the CLI
-  requires `--yes`; future bulk fan-outs should use preview/confirm before touching many tasks.
+- Read-friendly by default: shipped hard delete requires `PYRAMID_ALLOW_DESTRUCTIVE=1`, and the CLI requires `--yes`; future bulk fan-outs should use preview/confirm before touching many tasks.

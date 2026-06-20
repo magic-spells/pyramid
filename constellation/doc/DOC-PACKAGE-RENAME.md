@@ -21,6 +21,7 @@ connections:
 - **Dispatch:** `pyramid mcp` -> stdio MCP server; `pyramid doctor` -> setup check; `pyramid version` -> package version; local credential commands run before config load; anything else -> CLI.
 - **MCP client config:** `command: "npx", args: ["-y", "@magic-spells/pyramid", "mcp"]`.
 - **Env var:** destructive gate is `PYRAMID_ALLOW_DESTRUCTIVE`; `PYRAMID_API_KEY` and `PYRAMID_BASE_URL` keep their names.
+- **Repo:** the on-disk repo is `pyramid/`; `pyramid-server/` and `pyramid-web/` are connected sibling repos.
 
 **Why.** One install, one version, one test suite, and a guaranteed-shared core. A future programmatic SDK is a library export from this same package, not another package name.
 
@@ -33,5 +34,3 @@ connections:
 | `npx -y @magic-spells/pyramid-mcp` | `npx -y @magic-spells/pyramid mcp` |
 | `pyramid-mcp doctor` | `pyramid doctor` |
 | `PYRAMID_MCP_ALLOW_DESTRUCTIVE` | `PYRAMID_ALLOW_DESTRUCTIVE` |
-
-The folder name on disk remains `pyramid-mcp` for now.

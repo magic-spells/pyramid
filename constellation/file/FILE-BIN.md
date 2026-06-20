@@ -20,7 +20,7 @@ connections:
 `#!/usr/bin/env node` entry for the unified `@magic-spells/pyramid` package ([[DOC-PACKAGE-RENAME]]). Dispatches on argv:
 
 - `pyramid version` / `v` / `-v` / `--version` -> print `pyramid <version>` from [[FILE-VERSION]] to stdout, before config load.
-- `pyramid set-key` / `set-api-key` / `set-token` / `show-key` / `logout` / `login` -> local credential commands ([[FILE-AUTH-COMMANDS]]), handled before config load because they make no Pyramid API call.
+- `pyramid set-key` / `set-api-key` / `set-token` / `show-key` / `logout` / `login` -> local credential commands ([[FILE-AUTH-COMMANDS]]), handled before config load because they do not require an existing Pyramid API key. `login` is async: it starts the loopback callback server, opens the web app, then exits after success/failure.
 - `pyramid mcp` -> load config and start the stdio MCP server ([[FILE-SERVER]]).
 - `pyramid doctor` -> load config and run the auth/setup check ([[FLOW-STARTUP-AUTH]]).
 - anything else, including no subcommand -> lazy-import and hand off to the CLI ([[FILE-CLI]]).

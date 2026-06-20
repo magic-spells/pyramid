@@ -9,7 +9,7 @@ connections:
 
 Explicitly out of scope for the first ship; recorded so the architecture does not foreclose them.
 
-- **Browser login / OAuth** — replace the current manual paste-key setup with a local callback browser handoff. Today auth is a `pyk_` API key resolved from `PYRAMID_API_KEY` or the local keychain ([[DOC-CREDENTIAL-STORAGE]], [[FLOW-CLI-BROWSER-LOGIN]]).
+- **Short-lived browser-login code exchange / OAuth** — the MVP browser handoff is built with a loopback `pyk_` key delivery. A later code-exchange or OAuth refresh-token flow can remove the secret from the callback URL and support richer revocation without changing local keychain reads ([[DOC-CREDENTIAL-STORAGE]], [[FLOW-CLI-BROWSER-LOGIN]]).
 - **Streaming tool outputs** — progressive results for long lists via the MCP streaming spec.
 - **Webhook / SSE push** — surface changes to followed tasks as MCP notifications once the backend event stream is ready.
 - **Local search index** — SQLite cache of recent tasks for offline / fast-prefix search. This would break the current stateless app-data property, so it needs an explicit storage/privacy decision.

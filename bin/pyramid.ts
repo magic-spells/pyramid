@@ -88,7 +88,7 @@ async function main(): Promise<void> {
 	// (DOC-CREDENTIAL-STORAGE, FILE-AUTH-COMMANDS.)
 	const authHandler = cmd ? AUTH_COMMANDS[cmd] : undefined;
 	if (authHandler) {
-		process.exit(authHandler(argv));
+		process.exit(await authHandler(argv));
 		return;
 	}
 

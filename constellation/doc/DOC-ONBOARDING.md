@@ -14,15 +14,25 @@ connections:
 
 # Onboarding
 
-1. Open Pyramid (`pyramid-web`) -> **Settings -> API Keys** -> "Generate new key". A key is bound to the workspace you create it in ([[DOC-AUTH-WORKSPACE]]).
-2. Name it and copy it once (`pyk_<prefix>_<secret>`).
-3. Preferred local setup: store the key in the OS keychain with the `pyramid` bin ([[DOC-CREDENTIAL-STORAGE]], [[FILE-AUTH-COMMANDS]]):
+1. Preferred local setup: run browser login. It opens Pyramid, asks for consent, mints a workspace-scoped API key, and stores it in the local keychain ([[FLOW-CLI-BROWSER-LOGIN]], [[DOC-CREDENTIAL-STORAGE]]):
+
+```sh
+npx -y @magic-spells/pyramid login
+```
+
+For dev/staging, target a different web app with `PYRAMID_WEB_URL` or `--web-url`:
+
+```sh
+PYRAMID_WEB_URL=http://localhost:5173 npx -y @magic-spells/pyramid login
+```
+
+2. Manual fallback: open Pyramid (`pyramid-web`) -> **Settings -> API Keys** -> "Generate new key", copy the one-time `pyk_<prefix>_<secret>`, then store it with:
 
 ```sh
 npx -y @magic-spells/pyramid set-key pyk_...
 ```
 
-4. Add the MCP server to the client config (`~/.claude.json` or `.mcp.json`). The server is the `mcp` subcommand of the `pyramid` bin ([[DOC-PACKAGE-RENAME]]):
+3. Add the MCP server to the client config (`~/.claude.json` or `.mcp.json`). The server is the `mcp` subcommand of the `pyramid` bin ([[DOC-PACKAGE-RENAME]]):
 
 ```jsonc
 {
@@ -38,7 +48,7 @@ npx -y @magic-spells/pyramid set-key pyk_...
 }
 ```
 
-5. Restart the AI tool.
-6. Run the `pyramid:doctor` prompt or `npx -y @magic-spells/pyramid doctor` — it confirms the authenticated user, workspace, and accessible projects.
+4. Restart the AI tool.
+5. Run the `pyramid:doctor` prompt or `npx -y @magic-spells/pyramid doctor` — it confirms the authenticated user, workspace, and accessible projects.
 
-For CI, headless runs, or clients where keychain access is inconvenient, set `PYRAMID_API_KEY` in the MCP `env` block instead. Env always wins over the keychain. Local key management commands are `pyramid show-key` (masked), `pyramid logout` (clear stored key), and reserved stub `pyramid login` (future browser flow; today it points users to `set-key`).
+For CI, headless runs, or clients where keychain access is inconvenient, set `PYRAMID_API_KEY` in the MCP `env` block instead. Env always wins over the keychain. Local key management commands are `pyramid login`, `pyramid set-key`, `pyramid show-key` (masked), and `pyramid logout` (clear stored key).

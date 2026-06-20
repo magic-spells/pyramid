@@ -21,7 +21,7 @@ connections:
 1. Process starts through [[FILE-BIN]]: `pyramid ...`, `npx -y @magic-spells/pyramid ...`, or an MCP client running `npx -y @magic-spells/pyramid mcp`.
 2. Branches handled **before config load**:
    - `pyramid version` / `v` / `-v` / `--version` prints the package version from [[FILE-VERSION]].
-   - `pyramid set-key`, `set-api-key`, `set-token`, `show-key`, `logout`, and reserved stub `login` run local credential commands from [[FILE-AUTH-COMMANDS]]. They make no network call.
+   - `pyramid set-key`, `set-api-key`, `set-token`, `show-key`, `logout`, and `login` run local credential commands from [[FILE-AUTH-COMMANDS]]. They do not require an existing Pyramid API key; `login` opens the web app and waits for a loopback callback.
 3. CLI commands other than `mcp` / `doctor` hand off to [[FILE-CLI]], which parses globals, loads config, invokes the operation registry, and renders output.
 4. `pyramid mcp` and `pyramid doctor` load [[DATATYPE-MCP-CONFIG]] through [[FILE-CONFIG]]. Credential resolution is `PYRAMID_API_KEY` env -> OS keychain -> clear error ([[FLOW-CREDENTIAL-RESOLUTION]]).
 5. `pyramid mcp` constructs [[FILE-SERVER]] with a `PyramidClient` (bearer `pyk_...`) and `Resolver`, then connects `StdioServerTransport`; SIGINT/SIGTERM/stdin-close shut down cleanly.
