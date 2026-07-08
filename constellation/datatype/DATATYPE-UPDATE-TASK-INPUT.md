@@ -18,7 +18,7 @@ interface UpdateTaskInput {
   due_date?: string | null;
   start_date?: string | null;
   estimate?: number;
-  client_visible?: boolean; client_title?: string; client_description?: string;
+  guest_visible?: boolean; guest_title?: string; guest_description?: string;
   // Convenience fields the backend PATCH does NOT accept — the MCP fans each out (see below):
   owner?: string | null;   // name; null clears
   reporter?: string | null;

@@ -960,7 +960,7 @@ describe('operation: create_task (real registry)', () => {
 				priority: 'high',
 				due_date: '2026-07-01',
 				estimate_hours: 4,
-				client_visible: true,
+				guest_visible: true,
 			},
 			ctx
 		);
@@ -970,7 +970,7 @@ describe('operation: create_task (real registry)', () => {
 			priority: 'high',
 			due_date: '2026-07-01',
 			estimate: 4, // estimate_hours -> the backend's `estimate`
-			client_visible: true,
+			guest_visible: true,
 		});
 	});
 });

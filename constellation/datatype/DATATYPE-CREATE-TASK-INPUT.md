@@ -25,7 +25,7 @@ interface CreateTaskInput {
   // Assignment is PER-STAGE — the server has NO top-level owner/assignee field:
   assignments?: { stage: string; owner?: string; reporter?: string }[]; // → stage_responsibilities[]
   custom_fields?: { field: string; value: unknown }[]; // MCP validates value against field_type
-  client_visible?: boolean; client_title?: string; client_description?: string;
+  guest_visible?: boolean; guest_title?: string; guest_description?: string;
 }
 ```
 

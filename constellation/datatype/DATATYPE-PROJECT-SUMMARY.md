@@ -13,7 +13,7 @@ interface ProjectSummary {
   slug: string;
   name: string;
   task_prefix: string; // e.g. "WEB" — the human-key prefix
-  role: "admin" | "pm" | "member" | "viewer" | "client"; // caller's project role
+  role: "admin" | "pm" | "member" | "viewer" | "guest"; // caller's project role
   archived: boolean;
 }
 ```

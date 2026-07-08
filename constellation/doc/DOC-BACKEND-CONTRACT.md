@@ -46,8 +46,8 @@ workspace (`X-Workspace-*` ignored for keys).
 
 ## Write bodies (exact json fields)
 
-- **createTask** `{ title*, description?, template_id?, status_id?, stage_id?(IGNORED — stage derived from status), stage_responsibilities:[{stage_id, owner_id, reporter_id}], label_ids:[uuid], due_date?, estimate?(float→hours), client_visible?, client_title?, client_description?, priority?, field_values:{fieldId: value} }`. **No top-level owner_id/reporter_id.**
-- **updateTask** `{ title?, description?, status_id?, stage_id?(IGNORED), due_date?, start_date?, estimate?, priority?, client_visible?, client_title?, client_description? }`. **Accepts NO owner/reporter, NO labels, NO field_values** — use the dedicated endpoints above.
+- **createTask** `{ title*, description?, template_id?, status_id?, stage_id?(IGNORED — stage derived from status), stage_responsibilities:[{stage_id, owner_id, reporter_id}], label_ids:[uuid], due_date?, estimate?(float→hours), guest_visible?, guest_title?, guest_description?, priority?, field_values:{fieldId: value} }`. **No top-level owner_id/reporter_id.**
+- **updateTask** `{ title?, description?, status_id?, stage_id?(IGNORED), due_date?, start_date?, estimate?, priority?, guest_visible?, guest_title?, guest_description? }`. **Accepts NO owner/reporter, NO labels, NO field_values** — use the dedicated endpoints above.
 - **moveTask** `{ status_id?, before_id?, after_id?, project_id?(IGNORED) }` → returns `{task, previous:{status_id, position, completed_at}}`. Hydrate `raw.task`.
 - **bulkCreate** `{ project_id*, template_id*, idempotency_key?, tasks:[{ title*, description?, status_id?, stage_responsibilities, label_ids, field_values }] }`.
 - **addComment** `{ body_md OR content (req), stage_id?(defaults to task's current stage), mention_user_ids:[uuid] }`.

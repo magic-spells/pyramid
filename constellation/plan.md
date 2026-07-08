@@ -11,6 +11,11 @@ connected_repos:
     description: >-
       Svelte SPA. Owns the Settings → API Keys screen where users mint pyk_ keys (out of scope
       here).
+  - name: pyramid-ios
+    path: ../pyramid-ios
+    description: >-
+      Native SwiftUI iOS viewer app (iOS 26+). Sibling client of the same pyramid-server API; no
+      direct interaction with the MCP/CLI.
 ---
 
 ## What this is

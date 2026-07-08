@@ -40,7 +40,7 @@ export interface ProjectSummary {
 	slug: string;
 	name: string;
 	task_prefix: string;
-	role: 'admin' | 'pm' | 'member' | 'viewer' | 'client';
+	role: 'admin' | 'pm' | 'member' | 'viewer' | 'guest';
 	archived: boolean;
 }
 
@@ -182,9 +182,9 @@ export interface CreateTaskInput {
 	priority?: TaskPriority;
 	due_date?: string;
 	estimate_hours?: number;
-	client_visible?: boolean;
-	client_title?: string;
-	client_description?: string;
+	guest_visible?: boolean;
+	guest_title?: string;
+	guest_description?: string;
 	custom_fields?: CustomFieldValue[];
 }
 
@@ -203,9 +203,9 @@ export interface UpdateTaskInput {
 	due_date?: string | null;
 	start_date?: string | null;
 	estimate?: number;
-	client_visible?: boolean;
-	client_title?: string;
-	client_description?: string;
+	guest_visible?: boolean;
+	guest_title?: string;
+	guest_description?: string;
 	// Convenience fields the PATCH does not accept — the op fans them out to the
 	// dedicated stage-responsibilities / labels / field-values endpoints.
 	owner?: string | null; // null clears

@@ -22,7 +22,7 @@ The MCP must honor it:
   ([[DATATYPE-WHOAMI]]) reports the one workspace the key acts in. A user who needs two
   workspaces mints two keys and configures two MCP servers.
 - The key **inherits exactly its owner's access** within that workspace — workspace role,
-  project roles, and client-visibility limits all apply unchanged. No super-keys.
+  project roles, and guest-visibility limits all apply unchanged. No super-keys.
 - **Key management is browser-only.** `GET/POST/DELETE/regenerate /v1/api-keys` reject
   API-key auth (403), so this MCP can never mint or revoke keys. Keys are created in
   `pyramid-web` → Settings → API Keys ([[DOC-ONBOARDING]]).

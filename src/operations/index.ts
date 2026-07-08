@@ -83,7 +83,7 @@ function readStr(v: unknown): string | undefined {
 	return typeof v === 'string' && v.length > 0 ? v : undefined;
 }
 
-const PROJECT_ROLES = ['admin', 'pm', 'member', 'viewer', 'client'] as const;
+const PROJECT_ROLES = ['admin', 'pm', 'member', 'viewer', 'guest'] as const;
 type ProjectRole = (typeof PROJECT_ROLES)[number];
 
 function projectRole(v: unknown): ProjectRole {
@@ -402,9 +402,9 @@ async function buildCreateBody(
 		priority?: string;
 		due_date?: string;
 		estimate_hours?: number;
-		client_visible?: boolean;
-		client_title?: string;
-		client_description?: string;
+		guest_visible?: boolean;
+		guest_title?: string;
+		guest_description?: string;
 		custom_fields?: { field: string; value?: unknown }[];
 	}
 ): Promise<Record<string, unknown>> {
@@ -413,10 +413,10 @@ async function buildCreateBody(
 	if (row.priority !== undefined) body.priority = row.priority;
 	if (row.due_date !== undefined) body.due_date = row.due_date;
 	if (row.estimate_hours !== undefined) body.estimate = row.estimate_hours;
-	if (row.client_visible !== undefined) body.client_visible = row.client_visible;
-	if (row.client_title !== undefined) body.client_title = row.client_title;
-	if (row.client_description !== undefined) {
-		body.client_description = row.client_description;
+	if (row.guest_visible !== undefined) body.guest_visible = row.guest_visible;
+	if (row.guest_title !== undefined) body.guest_title = row.guest_title;
+	if (row.guest_description !== undefined) {
+		body.guest_description = row.guest_description;
 	}
 
 	// The status carries its stage; resolve it (and the stage it belongs to) once so
@@ -745,9 +745,9 @@ const taskCreateInput = z.object({
 	priority: priorityEnum.optional(),
 	due_date: z.string().optional(),
 	estimate_hours: z.number().optional(),
-	client_visible: z.boolean().optional(),
-	client_title: z.string().optional(),
-	client_description: z.string().optional(),
+	guest_visible: z.boolean().optional(),
+	guest_title: z.string().optional(),
+	guest_description: z.string().optional(),
 	custom_fields: z.array(customFieldSchema).optional(),
 });
 type TaskCreateInput = z.infer<typeof taskCreateInput>;
@@ -791,9 +791,9 @@ const taskBulkCreateInput = z.object({
 				priority: priorityEnum.optional(),
 				due_date: z.string().optional(),
 				estimate_hours: z.number().optional(),
-				client_visible: z.boolean().optional(),
-				client_title: z.string().optional(),
-				client_description: z.string().optional(),
+				guest_visible: z.boolean().optional(),
+				guest_title: z.string().optional(),
+				guest_description: z.string().optional(),
 				custom_fields: z.array(customFieldSchema).optional(),
 			})
 		)
@@ -880,9 +880,9 @@ const taskUpdateInput = z.object({
 	due_date: z.string().nullable().optional(),
 	start_date: z.string().nullable().optional(),
 	estimate: z.number().optional(),
-	client_visible: z.boolean().optional(),
-	client_title: z.string().optional(),
-	client_description: z.string().optional(),
+	guest_visible: z.boolean().optional(),
+	guest_title: z.string().optional(),
+	guest_description: z.string().optional(),
 	owner: z.string().nullable().optional(),
 	reporter: z.string().nullable().optional(),
 	add_labels: z.array(z.string()).optional(),
@@ -910,10 +910,10 @@ const taskUpdate: Operation<TaskUpdateInput, TaskDetail> = {
 		if (input.due_date !== undefined) patch.due_date = input.due_date;
 		if (input.start_date !== undefined) patch.start_date = input.start_date;
 		if (input.estimate !== undefined) patch.estimate = input.estimate;
-		if (input.client_visible !== undefined) patch.client_visible = input.client_visible;
-		if (input.client_title !== undefined) patch.client_title = input.client_title;
-		if (input.client_description !== undefined) {
-			patch.client_description = input.client_description;
+		if (input.guest_visible !== undefined) patch.guest_visible = input.guest_visible;
+		if (input.guest_title !== undefined) patch.guest_title = input.guest_title;
+		if (input.guest_description !== undefined) {
+			patch.guest_description = input.guest_description;
 		}
 		if (Object.keys(patch).length > 0) {
 			await failingSubUpdate('content', () => ctx.client.updateTask(ref.id, patch));

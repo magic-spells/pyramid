@@ -12,7 +12,7 @@ connections:
 ---
 
 `update_task` — sparse patch of a task's **content only**: title, description, priority,
-dates, estimate, client_* ([[DATATYPE-UPDATE-TASK-INPUT]] → [[DATATYPE-TASK-DETAIL]]). Wraps
+dates, estimate, guest_* ([[DATATYPE-UPDATE-TASK-INPUT]] → [[DATATYPE-TASK-DETAIL]]). Wraps
 `PATCH /v1/tasks/{id}`, which **requires an `If-Match` ETag** — the client does a read-first to
 get it ([[DOC-CONCURRENCY]]).
 

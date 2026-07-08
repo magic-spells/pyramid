@@ -363,7 +363,7 @@ function optStr(v: unknown): string | undefined {
 	return typeof v === 'string' && v.length > 0 ? v : undefined;
 }
 
-const PROJECT_ROLES = ['admin', 'pm', 'member', 'viewer', 'client'] as const;
+const PROJECT_ROLES = ['admin', 'pm', 'member', 'viewer', 'guest'] as const;
 type ProjectRole = (typeof PROJECT_ROLES)[number];
 
 function projectRole(v: unknown): ProjectRole {
